@@ -2,10 +2,10 @@
   "name": "obsidian-wypst",
   "version": "0.0.2",
   "description": "Typst math typesetting for Obsidian.",
-  "main": "index.html",
+  "main": "dist/index.html",
   "scripts": {
-    "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "dev": "parcel index.html --port 1234",
+    "build": "parcel build --public-url ./ --no-source-maps index.html --no-minify",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
   "keywords": [
@@ -16,17 +16,21 @@
   "license": "MIT",
   "devDependencies": {
     "@logseq/libs": "^0.0.1-alpha.29",
+    "parcel-bundler": "^1.12.5",
     "@types/node": "^16.11.6",
-    "@typescript-eslint/eslint-plugin": "5.29.0",
-    "@typescript-eslint/parser": "5.29.0",
-    "builtin-modules": "3.3.0",
-    "esbuild": "0.17.3",
-    "katex": "^0.16.9",
-    "tslib": "2.4.0",
-    "typescript": "4.7.4",
-    "wypst": "0.0.4"
+	"@typescript-eslint/eslint-plugin": "5.29.0",
+	"@typescript-eslint/parser": "5.29.0",
+	"builtin-modules": "3.3.0",
+	"esbuild": "0.17.3",
+	"katex": "^0.16.9",
+	"tslib": "2.4.0",
+	"typescript": "4.7.4",
+	"wypst": "0.0.4"
   },
   "logseq": {
     "id": "_pvdxq819m"
+  },
+  "dependencies": {
+    "default.css": "^0.1.1"
   }
 }

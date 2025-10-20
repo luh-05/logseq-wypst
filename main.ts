@@ -1,18 +1,20 @@
 // import { App, MarkdownView, Plugin, PluginSettingTab, Setting, loadMathJax } from 'obsidian';
-// import wypst from 'wypst';
-// import wasm from 'wypst/core/core_bg.wasm';
+import wypst from 'wypst';
+import wasm from 'wypst/core/core_bg.wasm';
 import '@logseq/libs';
 
-// import 'katex/dist/katex.css';
-import 'default.css';
+import settisdsdlfkjngs from "./settings.ts";
 
-// interface WypstSettings {
-// 	fallbackToLatexOnError: boolean
-// }
+import 'katex/dist/katex.css';
+// import 'default.css';
 
-// const DEFAULT_SETTINGS: Partial<WypstSettings> = {
-// 	fallbackToLatexOnError: false,
-// };
+interface WypstSettings {
+	fallbackToLatexOnError: boolean
+}
+
+const DEFAULT_SETTINGS: Partial<WypstSettings> = {
+	fallbackToLatexOnError: false,
+};
 
 // export default class Wypst extends Plugin {
 // 	settings: WypstSettings
@@ -98,13 +100,13 @@ import 'default.css';
 // 	}
 // }
 
-// function hasLatexCommand(expr: string) {
-// 	const regex = /\\\S/;
-// 	return regex.test(expr);
-// }
-
-function main() {
-	logseq.App.showMsg("Hello World! 12312312234234");
+function hasLatexCommand(expr: string) {
+	const regex = /\\\S/;
+	return regex.test(expr);
 }
 
-logseq.ready(main).catch(console.error);
+function main() {
+	logseq.App.showMsg("Hello logseq!!!");
+}
+
+logseq.useSettingsSchema(settings).ready(main).catch(console.error);
