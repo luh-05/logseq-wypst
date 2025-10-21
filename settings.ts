@@ -1,7 +1,7 @@
 import { SettingSchemaDesc } from "@logseq/libs/dist/LSPlugin.user";
 
-export const fallbackOnLatexError: SettingSchemaDesc = {
-  key: "",
+export const fallbackOnTypstError: SettingSchemaDesc = {
+  key: "wypst:fallbackOnTypstError",
   title: "Fall back on Latex on Error (experimental)?",
   description: "Always fall back on LaTeX when Typst fails",
   type: "boolean",
@@ -9,6 +9,6 @@ export const fallbackOnLatexError: SettingSchemaDesc = {
 }
 
 export const settings: SettingSchemaDesc[] = [
-  fallbackOnLatexError
+  fallbackOnTypstError
 ];
 

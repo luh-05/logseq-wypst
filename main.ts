@@ -100,7 +100,7 @@ const DEFAULT_SETTINGS: Partial<WypstSettings> = {
 // 	}
 // }
 
-var wypstSettings: WypstSettings;
+var wypstSettings: WypstSettings = DEFAULT_SETTINGS;
 
 function hasLatexCommand(expr: string) {
 	const regex = /\\\S/;
@@ -109,8 +109,8 @@ function hasLatexCommand(expr: string) {
 
 function onSettingsChanged(a: settings, b: settings) {
 	logseq.App.showMsg("Changed settings!");
-	console.log(b);
-	// wypstSettings.fallbackToLatexOnError = b[0];
+	console.log(a);
+	wypstSettings.fallbackToLatexOnError = b["wypst:fallbackOnTypstError"];
 }
 
 async function load(): Promise<void> {
