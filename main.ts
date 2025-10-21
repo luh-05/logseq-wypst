@@ -113,10 +113,45 @@ function onSettingsChanged(a: settings, b: settings) {
 	wypstSettings.fallbackToLatexOnError = b["wypst:fallbackOnTypstError"];
 }
 
+class SearchServices implements IPluginsSearchServiceHooks {
+	name: string = "logseq-wypst";
+	async onBlocksChanged(graph: string, changes: {
+		added: Array<SearchBlockItem>,
+		removed: Array<BlockEntity>
+	}): Promise<void> {
+		logseq.App.showMsg("bla");
+		console.log("blocks changed");
+	}
+}
+
+function handleChange(e: any) {
+	console.log("db, changed", e);
+}
+
+var changeHook: IUserOffHook;
+
 async function load(): Promise<void> {
 	await wypst.init(wasm);
+	// const parser = new DOMParser();
 	// await new Promise(resolve => setTimeout(resolve, 1000));
-	logseq.App.showMsg("Typst plugin loaded!");
+
+	// logseq.onBlocksChanged((graph: string, changes: {
+	// 	added: SearchBlockItem[];
+	// 	removed: BlockEntity[];
+	// }) => {
+	// 		console.log("changed block");
+	// 	});
+
+	// var s = new SearchServices();
+	// logseq.App.registerSearchService(s);
+
+	// logseq.Editor.onBlockChanged
+
+	// logseq.DB.onChanged(new IUserHook<ChangeData, () => {
+	// 		console.log("db changed");
+	// 	}>
+	// 	);
+	
 }
 
 function main() {
@@ -128,7 +163,13 @@ function main() {
 	}).catch(err => {
 		logseq.App.showMsg(err);
 	});
+	changeHook = logseq.DB.onChanged(handleChange);
+
+	logseq.beforeunload(async () => {
+		changeHook();
+	});
 	
+	logseq.App.showMsg("Typst plugin loaded!");
 }
 
 

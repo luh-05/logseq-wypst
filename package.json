@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "parcel index.html --port 1234",
-    "build": "parcel build --target logseq-plugin --no-source-maps",
+    "build": "parcel build --target logseq-plugin --no-source-maps --no-optimize",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
   "keywords": [
@@ -26,7 +26,7 @@
     "parcel": "2.16.0"
   },
   "dependencies": {
-    "@logseq/libs": "^0.0.1-alpha.29",
+    "@logseq/libs": "^0.0.17",
     "default.css": "^0.1.1",
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "5.29.0",
