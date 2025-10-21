@@ -3,7 +3,7 @@ import wypst from 'wypst';
 import wasm from 'wypst/core/core_bg.wasm';
 import '@logseq/libs';
 
-import settisdsdlfkjngs from "./settings.ts";
+import { settings } from "./settings.ts";
 
 import 'katex/dist/katex.css';
 // import 'default.css';
@@ -100,13 +100,37 @@ const DEFAULT_SETTINGS: Partial<WypstSettings> = {
 // 	}
 // }
 
+var wypstSettings: WypstSettings;
+
 function hasLatexCommand(expr: string) {
 	const regex = /\\\S/;
 	return regex.test(expr);
 }
 
-function main() {
-	logseq.App.showMsg("Hello logseq!!!");
+function onSettingsChanged(a: settings, b: settings) {
+	logseq.App.showMsg("Changed settings!");
+	console.log(b);
+	// wypstSettings.fallbackToLatexOnError = b[0];
 }
 
+async function load(): Promise<void> {
+	await wypst.init(wasm);
+	// await new Promise(resolve => setTimeout(resolve, 1000));
+	logseq.App.showMsg("Typst plugin loaded!");
+}
+
+function main() {
+	logseq.onSettingsChanged<settings>(onSettingsChanged);
+	logseq.App.showMsg("Loading typst plugin...");
+
+	load().then(() => {
+		
+	}).catch(err => {
+		logseq.App.showMsg(err);
+	});
+	
+}
+
+
 logseq.useSettingsSchema(settings).ready(main).catch(console.error);
+// logser.onSettingsChanged<settings>((a,b) => {logseq.App.showMsg("Changed settings!");}).useSettingsSchema(settings).ready(main).catch(console.error);

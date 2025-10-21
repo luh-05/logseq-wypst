@@ -7,5 +7,6 @@
 	"author": "0xpapercut",
 	"authorUrl": "https://0xpapercut.github.io",
 	"fundingUrl": "https://0xpapercut.github.io/funding",
-	"isDesktopOnly": false
+	"isDesktopOnly": false,
+	"main": "dist/index.html"
 }

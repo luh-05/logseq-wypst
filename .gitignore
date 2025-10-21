@@ -1,4 +1,5 @@
 dist
+cache
 
 # vscode
 .vscode
