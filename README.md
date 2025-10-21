@@ -1,5 +1,7 @@
 # Wypst
-High quality rendering of [Typst](https://github.com/typst/typst) in Obsidian, powered by [wypst](https://github.com/0xpapercut/wypst).
+Fork of [obsidian-wypst](https://github.com/0xbolt/obsidian-wypst) from 0xbolt.
+
+High quality rendering of [Typst](https://github.com/typst/typst) in Logseq, powered by [wypst](https://github.com/0xpapercut/wypst).
 
 ## Usage
 This plugin overrides regular math blocks (`$<...>$` and `$$<...>$$`), so that they're rendered as Typst math.
@@ -16,4 +18,4 @@ For example, `$pi$` will be rendered using Typst, whereas `$\pi$` will be render
 In general, expressions in Typst and LaTeX, if equivalent, should render to _exactly_ the same output. If this is not the case, you can report it as an issue.
 
 ## Issues
-I welcome everyone who encounters a problem to open an issue on [0xpapercut/obsidian-wypst](https://github.com/0xpapercut/obsidian-wypst/issues/new).
+I welcome everyone who encounters a problem to open an issue on [luh-05/logseq-wypst](https://github.com/luh-05/logseq-wypst/issues/new).
