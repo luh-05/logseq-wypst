@@ -2,11 +2,16 @@
 import wypst from 'wypst';
 import wasm from 'wypst/core/core_bg.wasm';
 import '@logseq/libs';
+// import * as React from 'react';
 
 import { settings } from "./settings.ts";
 
+
+
 import 'katex/dist/katex.css';
 // import 'default.css';
+
+const React = logseq.Experiments.React;
 
 interface WypstSettings {
 	fallbackToLatexOnError: boolean
@@ -119,8 +124,7 @@ class SearchServices implements IPluginsSearchServiceHooks {
 		added: Array<SearchBlockItem>,
 		removed: Array<BlockEntity>
 	}): Promise<void> {
-		logseq.App.showMsg("bla");
-		console.log("blocks changed");
+		console.log("blocks changed: ", changes, " on ", graph);
 	}
 }
 
@@ -154,6 +158,27 @@ async function load(): Promise<void> {
 	
 }
 
+function renderWypst(probs: { content: string }): React.Element {
+	const host = logseq.Experiments.ensureHostScope();
+	// const React = logseq.Experiments.React;
+
+	// React.useEffect(() => {
+	// 	// loadCSS(host.document, '')
+
+		
+	// }, []);
+	const options = {
+		output: 'html',
+		displayMode: true,
+	};
+	console.log(options.displayMode);
+	const res = wypst.renderToString(probs.content, options);
+	// return ( <div dangerouslySetInnerHTML={{ __html: res }} /> )
+	return (
+		<h1>test</h1>
+	);	
+}
+
 function main() {
 	logseq.onSettingsChanged<settings>(onSettingsChanged);
 	logseq.App.showMsg("Loading typst plugin...");
@@ -163,10 +188,25 @@ function main() {
 	}).catch(err => {
 		logseq.App.showMsg(err);
 	});
-	changeHook = logseq.DB.onChanged(handleChange);
+	// changeHook = logseq.DB.onChanged(handleChange);
+
+	// const enhancer = async (v) => { console.log(v); return "test"; };
+	// logseq.Experiments.registerExtensionsEnhancer("katex", enhancer);
+	// logseq.Experiments.invokeExperMethod(
+	// 	'registerExtensionsEnhancer',
+	// 	logseq.baseInfo.id,
+	// 	'katex',
+	// 	enhancer
+	// );
+	logseq.Experiments.registerFencedCodeRenderer(
+		'typst', {
+			edit: false,
+			render: renderWypst
+		}
+	);
 
 	logseq.beforeunload(async () => {
-		changeHook();
+		// changeHook();
 	});
 	
 	logseq.App.showMsg("Typst plugin loaded!");
