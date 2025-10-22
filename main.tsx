@@ -171,12 +171,15 @@ function renderWypst(probs: { content: string }): React.Element {
 		output: 'html',
 		displayMode: true,
 	};
-	console.log(options.displayMode);
+	// console.log(options.displayMode);
 	const res = wypst.renderToString(probs.content, options);
 	// return ( <div dangerouslySetInnerHTML={{ __html: res }} /> )
-	return (
-		<h1>test</h1>
-	);	
+	// return (
+	// 	<h1>test</h1>
+	// );
+	return React.createElement('div', {
+		dangerouslySetInnerHTML: { __html: res }
+	});
 }
 
 function main() {
