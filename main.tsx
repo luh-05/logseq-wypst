@@ -6,8 +6,6 @@ import '@logseq/libs';
 
 import { settings } from "./settings.ts";
 
-
-
 import 'katex/dist/katex.css';
 // import 'default.css';
 
@@ -22,6 +20,7 @@ const DEFAULT_SETTINGS: Partial<WypstSettings> = {
 };
 
 var wypstSettings: WypstSettings = DEFAULT_SETTINGS;
+
 function onSettingsChanged(a: settings, b: settings) {
 	wypstSettings.fallbackToLatexOnError = b["wypst:fallbackOnTypstError"];
 }
@@ -33,37 +32,39 @@ var unmodifiedKatexFunctions: {
 
 await wypst.init(wasm);
 
-async function waitForProperty<T, K extends keyof T>(obj: T, prop: K, interval = 10): Promise<T[K]> {
-	return new Promise(resolve => {
-        const handle = setInterval(() => {
-            if (obj[prop] !== undefined) {
-                clearInterval(handle);
-                resolve(obj[prop]);
-            }
-        }, interval);
-    });
-}
-
 var katex = undefined;
 
-const renderToString = function(expression, options): string {
-	try {
-		return wypst.renderToString(expression, options);
-	} catch (error) {
-		if (wypstSettings.fallbackToLatexOnError) {
-			return unmodifiedKatexFunctions.renderToString(expression, options);
-		}
+function hasLatexCommand(expr: string) {
+	const regex = /\\\S/;
+	return regex.test(expr);
+}
 
-		return '<span style="color: red;">${error}</span>';
+const renderToString = function(expression, options): string {
+	if (!hasLatexCommand(expression)) {
+		try {
+			return wypst.renderToString(expression, options);
+		} catch (error) {
+			if (wypstSettings.fallbackToLatexOnError) {
+				return unmodifiedKatexFunctions.renderToString(expression, options);
+			}
+
+			return '<span style="color: red;">${error}</span>';
+		}
+	} else {
+		return unmodifiedKatexFunctions.renderToString(expression, options);
 	}
 }
 const render = function(expression, baseNode, options) {
-	try {
-		wypst.render(expression, baseNode, options);
-	} catch (error) {
-		if (wypstSettings.fallbackToLatexOnError) {
-			unmodifiedKatexFunctions.render(expression, baseNode, options);
+	if (!hasLatexCommand(expression)) {
+		try {
+			wypst.render(expression, baseNode, options);
+		} catch (error) {
+			if (wypstSettings.fallbackToLatexOnError) {
+				unmodifiedKatexFunctions.render(expression, baseNode, options);
+			}
 		}
+	} else {
+		unmodifiedKatexFunctions.render(expression, baseNode, options);
 	}
 }
 

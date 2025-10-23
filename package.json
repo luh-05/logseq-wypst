@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-wypst",
+  "name": "logseq-wypst",
   "type": "module",
   "version": "0.0.2",
   "description": "Typst math typesetting for Obsidian.",
@@ -20,7 +20,7 @@
     "typst",
     "wypst"
   ],
-  "author": "0xpapercut",
+  "author": "luh-05",
   "license": "MIT",
   "devDependencies": {
     "parcel": "2.16.0"
