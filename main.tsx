@@ -1,13 +1,10 @@
-// import { App, MarkdownView, Plugin, PluginSettingTab, Setting, loadMathJax } from 'obsidian';
 import wypst from 'wypst';
 import wasm from 'wypst/core/core_bg.wasm';
 import '@logseq/libs';
-// import * as React from 'react';
 
 import { settings } from "./settings.ts";
 
 import 'katex/dist/katex.css';
-// import 'default.css';
 
 const React = logseq.Experiments.React;
 
@@ -25,20 +22,24 @@ function onSettingsChanged(a: settings, b: settings) {
 	wypstSettings.fallbackToLatexOnError = b["wypst:fallbackOnTypstError"];
 }
 
+await wypst.init(wasm);
+
+// Actual katex object
+var katex = undefined;
+
+// Original katex functions
 var unmodifiedKatexFunctions: {
 	render: any,
 	renderToString: any
 } = {};
 
-await wypst.init(wasm);
-
-var katex = undefined;
 
 function hasLatexCommand(expr: string) {
 	const regex = /\\\S/;
 	return regex.test(expr);
 }
 
+// Renders maths to string, supports typst and latex, preferrs typst
 const renderToString = function(expression, options): string {
 	if (!hasLatexCommand(expression)) {
 		try {
@@ -54,6 +55,7 @@ const renderToString = function(expression, options): string {
 		return unmodifiedKatexFunctions.renderToString(expression, options);
 	}
 }
+// Renders maths to dom, supports typst and latex, preferrs typst
 const render = function(expression, baseNode, options) {
 	if (!hasLatexCommand(expression)) {
 		try {
@@ -68,10 +70,13 @@ const render = function(expression, baseNode, options) {
 	}
 }
 
+// DO NOT CALL TWICE!!!!!
 function overrideKatexRendering() {
 	const host = logseq.Experiments.ensureHostScope();
+	// store the original functions for use on fallback and to reset when the plugin is disabled at runtime
 	unmodifiedKatexFunctions.render = host.katex.render;
 	unmodifiedKatexFunctions.renderToString = host.katex.renderToString;
+	// override katex rendering functions with custom ones
 	host.katex.render = render;
 	host.katex.renderToString = renderToString;
 }
@@ -79,6 +84,8 @@ function overrideKatexRendering() {
 async function load(): Promise<void> {
 	const host = logseq.Experiments.ensureHostScope();
 
+	// Katex apparently gets loaded after plugins
+	// This lies a trap to catch when katex gets initialized to instantly modify it
 	if (host["katex"] === undefined) {
 		console.log("Waiting for katex to be initialized...");
 
@@ -103,6 +110,7 @@ async function load(): Promise<void> {
 	}
 }
 
+// Renders a string as typst
 function renderWypst(probs: { content: string }): React.Element {
 	const options = {
 		output: 'html',
@@ -117,6 +125,7 @@ function renderWypst(probs: { content: string }): React.Element {
 function main() {
 	logseq.onSettingsChanged<settings>(onSettingsChanged);
 
+	// Set up fenced code renderer
 	logseq.Experiments.registerFencedCodeRenderer(
 		'typst', {
 			edit: false,
@@ -124,21 +133,23 @@ function main() {
 		}
 	);
 
+	// Set up inline renderer
 	load().then(() => {
 		
 	}).catch(err => {
 		logseq.App.showMsg(err);
 	});
 
+	// Set up unload callback
 	logseq.beforeunload(async () => {
 		const host = logseq.Experiments.ensureHostScope();
+		// Return katex to it's original state 
 	 	host.katex.render = unmodifiedKatexFunctions.render;
 		host.katex.renderToString = unmodifiedKatexFunctions.renderToString;
 
+		// Disengage trap
 		Object.defineProperty(host, "katex", katex);		
 	});
-
 }
-
 
 logseq.useSettingsSchema(settings).ready(main).catch(console.error);
