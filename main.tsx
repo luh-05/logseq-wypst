@@ -107,76 +107,39 @@ const DEFAULT_SETTINGS: Partial<WypstSettings> = {
 
 var wypstSettings: WypstSettings = DEFAULT_SETTINGS;
 
-function hasLatexCommand(expr: string) {
-	const regex = /\\\S/;
-	return regex.test(expr);
-}
+// function hasLatexCommand(expr: string) {
+// 	const regex = /\\\S/;
+// 	return regex.test(expr);
+// }
 
 function onSettingsChanged(a: settings, b: settings) {
-	logseq.App.showMsg("Changed settings!");
+	// logseq.App.showMsg("Changed settings!");
 	console.log(a);
 	wypstSettings.fallbackToLatexOnError = b["wypst:fallbackOnTypstError"];
 }
 
-class SearchServices implements IPluginsSearchServiceHooks {
-	name: string = "logseq-wypst";
-	async onBlocksChanged(graph: string, changes: {
-		added: Array<SearchBlockItem>,
-		removed: Array<BlockEntity>
-	}): Promise<void> {
-		console.log("blocks changed: ", changes, " on ", graph);
-	}
-}
+var unmodifiedKatexFunctions: {
+	render: any,
+	renderToString: any
+} = {};
 
-function handleChange(e: any) {
-	console.log("db, changed", e);
-}
-
-var changeHook: IUserOffHook;
-
+await wypst.init(wasm);
 async function load(): Promise<void> {
-	await wypst.init(wasm);
-	// const parser = new DOMParser();
-	// await new Promise(resolve => setTimeout(resolve, 1000));
+	await new Promise(resolve => setTimeout(resolve, 1000));
 
-	// logseq.onBlocksChanged((graph: string, changes: {
-	// 	added: SearchBlockItem[];
-	// 	removed: BlockEntity[];
-	// }) => {
-	// 		console.log("changed block");
-	// 	});
-
-	// var s = new SearchServices();
-	// logseq.App.registerSearchService(s);
-
-	// logseq.Editor.onBlockChanged
-
-	// logseq.DB.onChanged(new IUserHook<ChangeData, () => {
-	// 		console.log("db changed");
-	// 	}>
-	// 	);
-	
+	const host = logseq.Experiments.ensureHostScope();
+	unmodifiedKatexFunctions.render = host.katex.render;
+	unmodifiedKatexFunctions.renderToString = host.katex.renderToString;
+	host.katex.render = wypst.render;
+	host.katex.renderToString = wypst.renderToString;
 }
 
 function renderWypst(probs: { content: string }): React.Element {
-	const host = logseq.Experiments.ensureHostScope();
-	// const React = logseq.Experiments.React;
-
-	// React.useEffect(() => {
-	// 	// loadCSS(host.document, '')
-
-		
-	// }, []);
 	const options = {
 		output: 'html',
 		displayMode: true,
 	};
-	// console.log(options.displayMode);
 	const res = wypst.renderToString(probs.content, options);
-	// return ( <div dangerouslySetInnerHTML={{ __html: res }} /> )
-	// return (
-	// 	<h1>test</h1>
-	// );
 	return React.createElement('div', {
 		dangerouslySetInnerHTML: { __html: res }
 	});
@@ -184,23 +147,8 @@ function renderWypst(probs: { content: string }): React.Element {
 
 function main() {
 	logseq.onSettingsChanged<settings>(onSettingsChanged);
-	logseq.App.showMsg("Loading typst plugin...");
+	// logseq.App.showMsg("Loading typst plugin...");
 
-	load().then(() => {
-		
-	}).catch(err => {
-		logseq.App.showMsg(err);
-	});
-	// changeHook = logseq.DB.onChanged(handleChange);
-
-	// const enhancer = async (v) => { console.log(v); return "test"; };
-	// logseq.Experiments.registerExtensionsEnhancer("katex", enhancer);
-	// logseq.Experiments.invokeExperMethod(
-	// 	'registerExtensionsEnhancer',
-	// 	logseq.baseInfo.id,
-	// 	'katex',
-	// 	enhancer
-	// );
 	logseq.Experiments.registerFencedCodeRenderer(
 		'typst', {
 			edit: false,
@@ -208,13 +156,20 @@ function main() {
 		}
 	);
 
-	logseq.beforeunload(async () => {
-		// changeHook();
+	load().then(() => {
+		
+	}).catch(err => {
+		logseq.App.showMsg(err);
 	});
-	
-	logseq.App.showMsg("Typst plugin loaded!");
+
+	logseq.beforeunload(async () => {
+		const host = logseq.Experiments.ensureHostScope();
+	 	host.katex.render = unmodifiedKatexFunctions.render;
+		host.katex.renderToString = unmodifiedKatexFunctions.renderToString;
+	});
+
+	// logseq.App.showMsg("Typst plugin loaded!");
 }
 
 
 logseq.useSettingsSchema(settings).ready(main).catch(console.error);
-// logser.onSettingsChanged<settings>((a,b) => {logseq.App.showMsg("Changed settings!");}).useSettingsSchema(settings).ready(main).catch(console.error);
