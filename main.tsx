@@ -9,17 +9,42 @@ import 'katex/dist/katex.css';
 const React = logseq.Experiments.React;
 
 interface WypstSettings {
+	renderCodeBlocks: boolean,
 	fallbackToLatexOnError: boolean
 }
 
 const DEFAULT_SETTINGS: Partial<WypstSettings> = {
+	renderCodeBlocks: false,
 	fallbackToLatexOnError: false,
 };
 
 var wypstSettings: WypstSettings = DEFAULT_SETTINGS;
 
 function onSettingsChanged(a: settings, b: settings) {
-	wypstSettings.fallbackToLatexOnError = b["wypst:fallbackOnTypstError"];
+	wypstSettings.fallbackToLatexOnError = a["wypst:fallbackOnTypstError"];
+	wypstSettings.renderCodeBlocks = a["wypst:renderCodeBlocks"];
+	console.log(a);
+	if (b["wypst:renderCodeBlocks"] != a["wypst:renderCodeBlocks"]) {
+		if (!a["wypst:renderCodeBlocks"]) {
+			logseq.App.relaunch();
+		} else {
+			logseq.Experiments.registerFencedCodeRenderer(
+				'typst', {
+					edit: false,
+					render: renderWypst
+				}
+			);
+		}
+	}
+	// if (wypstSettings.renderCodeBlocks) {
+	// 	logseq.Experiments.registerFencedCodeRenderer(
+	// 		'typst', {
+	// 			edit: false,
+	// 			render: renderWypst
+	// 		}
+	// 	);
+	// }
+	// console.log("settings changed");
 }
 
 await wypst.init(wasm);
@@ -127,12 +152,15 @@ function main() {
 	logseq.onSettingsChanged<settings>(onSettingsChanged);
 
 	// Set up fenced code renderer
-	logseq.Experiments.registerFencedCodeRenderer(
-		'typst', {
-			edit: false,
-			render: renderWypst
-		}
-	);
+	console.log(logseq.settings);
+	if (logseq.settings["wypst:renderCodeBlocks"]) {
+		logseq.Experiments.registerFencedCodeRenderer(
+			'typst', {
+				edit: false,
+				render: renderWypst
+			}
+		);
+	}
 
 	// Set up inline renderer
 	load().then(() => {
