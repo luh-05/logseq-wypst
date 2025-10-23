@@ -21,100 +21,8 @@ const DEFAULT_SETTINGS: Partial<WypstSettings> = {
 	fallbackToLatexOnError: false,
 };
 
-// export default class Wypst extends Plugin {
-// 	settings: WypstSettings
-// 	_tex2chtml: any;
-
-// 	async onload() {
-// 		await this.loadSettings();
-// 		this.addSettingTab(new WypstSettingTab(this.app, this));
-
-// 		await loadMathJax();
-
-// 		if (!globalThis.MathJax) {
-// 			throw new Error("MathJax failed to load.");
-// 		}
-
-// 		await wypst.init(wasm);
-
-// 		const parser = new DOMParser();
-// 		this._tex2chtml = globalThis.MathJax.tex2chtml;
-
-// 		globalThis.MathJax.tex2chtml = (e, r) => {
-// 			if (!hasLatexCommand(e)) {
-// 				const renderSettings = {
-// 					displayMode: r.display,
-// 				}
-// 				let renderedString = '';
-
-// 				try {
-// 					renderedString = wypst.renderToString(e, renderSettings);
-// 				} catch (error) {
-// 					if (this.settings.fallbackToLatexOnError) {
-// 						return this._tex2chtml(e, r);
-// 					}
-// 					renderedString = `<span style="color: red;">${error}</span>`;
-// 				}
-// 				return parser.parseFromString(renderedString, "text/html").body.firstChild;
-// 			} else {
-// 				return this._tex2chtml(e, r);
-// 			}
-// 		};
-
-// 		this.app.workspace.getActiveViewOfType(MarkdownView)?.previewMode.rerender(true);
-// 	}
-
-// 	async loadSettings() {
-// 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-// 	}
-
-// 	async saveSettings() {
-// 		await this.saveData(this.settings);
-// 	}
-
-// 	onunload() {
-// 		globalThis.MathJax.tex2chtml = this._tex2chtml;
-// 		this.app.workspace.getActiveViewOfType(MarkdownView)?.previewMode.rerender(true);
-// 	}
-// }
-
-// export class WypstSettingTab extends PluginSettingTab {
-// 	plugin: Wypst;
-
-// 	constructor(app: App, plugin: Wypst) {
-// 		super(app, plugin);
-// 		this.plugin = plugin;
-// 	}
-
-// 	display(): void {
-// 		const { containerEl } = this;
-
-// 		containerEl.empty();
-
-// 		new Setting(containerEl)
-// 			.setName("Fallback to LaTeX on error")
-// 			.setDesc("Always fallback to LaTeX when Wypst fails to render an expression (experimental)")
-// 			.addToggle(toggle => {
-// 				toggle
-// 					.setValue(this.plugin.settings.fallbackToLatexOnError)
-// 					.onChange(async value => {
-// 						this.plugin.settings.fallbackToLatexOnError = value;
-// 						await this.plugin.saveSettings();
-// 					})
-// 			})
-// 	}
-// }
-
 var wypstSettings: WypstSettings = DEFAULT_SETTINGS;
-
-// function hasLatexCommand(expr: string) {
-// 	const regex = /\\\S/;
-// 	return regex.test(expr);
-// }
-
 function onSettingsChanged(a: settings, b: settings) {
-	// logseq.App.showMsg("Changed settings!");
-	console.log(a);
 	wypstSettings.fallbackToLatexOnError = b["wypst:fallbackOnTypstError"];
 }
 
@@ -138,12 +46,33 @@ async function waitForProperty<T, K extends keyof T>(obj: T, prop: K, interval =
 
 var katex = undefined;
 
+const renderToString = function(expression, options): string {
+	try {
+		return wypst.renderToString(expression, options);
+	} catch (error) {
+		if (wypstSettings.fallbackToLatexOnError) {
+			return unmodifiedKatexFunctions.renderToString(expression, options);
+		}
+
+		return '<span style="color: red;">${error}</span>';
+	}
+}
+const render = function(expression, baseNode, options) {
+	try {
+		wypst.render(expression, baseNode, options);
+	} catch (error) {
+		if (wypstSettings.fallbackToLatexOnError) {
+			unmodifiedKatexFunctions.render(expression, baseNode, options);
+		}
+	}
+}
+
 function overrideKatexRendering() {
 	const host = logseq.Experiments.ensureHostScope();
 	unmodifiedKatexFunctions.render = host.katex.render;
 	unmodifiedKatexFunctions.renderToString = host.katex.renderToString;
-	host.katex.render = wypst.render;
-	host.katex.renderToString = wypst.renderToString;
+	host.katex.render = render;
+	host.katex.renderToString = renderToString;
 }
 
 async function load(): Promise<void> {
@@ -178,7 +107,7 @@ function renderWypst(probs: { content: string }): React.Element {
 		output: 'html',
 		displayMode: true,
 	};
-	const res = wypst.renderToString(probs.content, options);
+	const res = renderToString(probs.content, options);
 	return React.createElement('div', {
 		dangerouslySetInnerHTML: { __html: res }
 	});
