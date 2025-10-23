@@ -84,8 +84,9 @@ function overrideKatexRendering() {
 async function load(): Promise<void> {
 	const host = logseq.Experiments.ensureHostScope();
 
+	// I did not find a clean way to do this, so I am modifying the katex object directly
 	// Katex apparently gets loaded after plugins
-	// This lies a trap to catch when katex gets initialized to instantly modify it
+	// This lays a trap to catch when katex gets initialized to instantly modify it; if it isn't yet initialized
 	if (host["katex"] === undefined) {
 		console.log("Waiting for katex to be initialized...");
 
@@ -96,7 +97,7 @@ async function load(): Promise<void> {
 				return katex;
 			},
 			set(value) {
-				console.log("Katex Appeared!");
+				console.log("Katex appeared!");
 				katex = value;
 
 				overrideKatexRendering();
@@ -106,7 +107,7 @@ async function load(): Promise<void> {
 		});
 	} else {
 		overrideKatexRendering();
-		console.log("Katex overridden - LaTeX images will persist until reload");
+		console.log("Katex overridden - LaTeX images may persist until reload");
 	}
 }
 
@@ -147,8 +148,7 @@ function main() {
 	 	host.katex.render = unmodifiedKatexFunctions.render;
 		host.katex.renderToString = unmodifiedKatexFunctions.renderToString;
 
-		// Disengage trap
-		Object.defineProperty(host, "katex", katex);		
+		console.log("Katex reset to original.");	
 	});
 }
 

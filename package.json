@@ -2,7 +2,7 @@
   "name": "logseq-wypst",
   "type": "module",
   "version": "0.0.2",
-  "description": "Typst math typesetting for Obsidian.",
+  "description": "Typst math typesetting for Logseq.",
   "main": "dist/index.html",
   "targets": {
     "logseq-plugin": {
