@@ -124,14 +124,53 @@ var unmodifiedKatexFunctions: {
 } = {};
 
 await wypst.init(wasm);
-async function load(): Promise<void> {
-	await new Promise(resolve => setTimeout(resolve, 1000));
 
+async function waitForProperty<T, K extends keyof T>(obj: T, prop: K, interval = 10): Promise<T[K]> {
+	return new Promise(resolve => {
+        const handle = setInterval(() => {
+            if (obj[prop] !== undefined) {
+                clearInterval(handle);
+                resolve(obj[prop]);
+            }
+        }, interval);
+    });
+}
+
+var katex = undefined;
+
+function overrideKatexRendering() {
 	const host = logseq.Experiments.ensureHostScope();
 	unmodifiedKatexFunctions.render = host.katex.render;
 	unmodifiedKatexFunctions.renderToString = host.katex.renderToString;
 	host.katex.render = wypst.render;
 	host.katex.renderToString = wypst.renderToString;
+}
+
+async function load(): Promise<void> {
+	const host = logseq.Experiments.ensureHostScope();
+
+	if (host["katex"] === undefined) {
+		console.log("Waiting for katex to be initialized...");
+
+		Object.defineProperty(host, "katex", {
+			configurable: true,
+			enumerable: true,
+			get() {
+				return katex;
+			},
+			set(value) {
+				console.log("Katex Appeared!");
+				katex = value;
+
+				overrideKatexRendering();
+
+				console.log("Katex overridden!");
+			}
+		});
+	} else {
+		overrideKatexRendering();
+		console.log("Katex overridden - LaTeX images will persist until reload");
+	}
 }
 
 function renderWypst(probs: { content: string }): React.Element {
@@ -147,7 +186,6 @@ function renderWypst(probs: { content: string }): React.Element {
 
 function main() {
 	logseq.onSettingsChanged<settings>(onSettingsChanged);
-	// logseq.App.showMsg("Loading typst plugin...");
 
 	logseq.Experiments.registerFencedCodeRenderer(
 		'typst', {
@@ -166,9 +204,10 @@ function main() {
 		const host = logseq.Experiments.ensureHostScope();
 	 	host.katex.render = unmodifiedKatexFunctions.render;
 		host.katex.renderToString = unmodifiedKatexFunctions.renderToString;
+
+		Object.defineProperty(host, "katex", katex);		
 	});
 
-	// logseq.App.showMsg("Typst plugin loaded!");
 }
 
 
