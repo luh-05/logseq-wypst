@@ -3,11 +3,10 @@
 
 name: Build Plugin
 
-on:
+on: 
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    tags:
+    - '*'
 
 env:
   PLUGIN_NAME: logseq-wypst
