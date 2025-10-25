@@ -5,10 +5,10 @@ High quality rendering of [Typst](https://github.com/typst/typst) in Logseq, pow
 
 ## VERSION COMPATIBILITY
 ✅ **Logseq Desktop** (linux)  
-✅ **DB graphs**  
-❌ **DB-Web** - The katex instance seems to be somewhere else than the desktop app. As this plugin modifies the katex instance, it does not work.  
+✅ **Markdown graphs**  
+❌ **Web** - The katex instance seems to be somewhere else than the desktop app. As this plugin modifies the katex instance, it does not work.  
 ❓ **Logseq Desktop** (windows, macos) - should work though  
-❓ **Markdown Graphs** - should work though  
+❓ **DB Graphs** - should work though  
 ❓ **Mobile Verions** (Android, iOS)
 
 ## Usage
