@@ -3,6 +3,10 @@ Fork of [obsidian-wypst](https://github.com/0xbolt/obsidian-wypst) from 0xbolt.
 
 High quality rendering of [Typst](https://github.com/typst/typst) in Logseq, powered by [wypst](https://github.com/0xpapercut/wypst).
 
+## VERSION COMPATIBILITY
+Only tested on the DB-Desktop version! Compatibility on other platforms is not guaranteed but likely.
+Will soon test other versions, for now be caucious with versions other than the DB-desktop version.
+
 ## Usage
 This plugin overrides regular math blocks (`$<...>$` and `$$<...>$$`) and optionally fenced code blocks (```` ```typst <...>\n``` ````), so that they're rendered as Typst math.
 
