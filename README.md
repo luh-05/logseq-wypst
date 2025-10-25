@@ -4,8 +4,11 @@ Fork of [obsidian-wypst](https://github.com/0xbolt/obsidian-wypst) from 0xbolt.
 High quality rendering of [Typst](https://github.com/typst/typst) in Logseq, powered by [wypst](https://github.com/0xpapercut/wypst).
 
 ## VERSION COMPATIBILITY
-Only tested on the DB-Desktop version! Compatibility on other platforms is not guaranteed but likely.
-Will soon test other versions, for now be caucious with versions other than the DB-desktop version.
+✅ Logseq Desktop (linux)
+✅ DB graphs
+❌ DB-Web - The katex instance seems to be somewhere else than the desktop app. As this plugin modifies the katex instance, it does not work.
+❓ Logseq Desktop (windows, macos) - should work though
+❓ Markdown Graphs - should work though
 
 ## Usage
 This plugin overrides regular math blocks (`$<...>$` and `$$<...>$$`) and optionally fenced code blocks (```` ```typst <...>\n``` ````), so that they're rendered as Typst math.
